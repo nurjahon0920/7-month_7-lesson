@@ -1,47 +1,44 @@
 const redux = require("redux");
 const createStore = redux.createStore;
-const BUY_CAKE = "BUY_CAKE";
 const ADD_TODO = "ADD_TODO";
 const REMOVE_TODO = "REMOVE_TODO";
 const UPDATE_TODO = "UPDATE_TODO";
 const GET_TODOS = "GET_TODOS";
+
+let nextTodoId = 1;
+
 const addTodo = (task) => ({
   type: ADD_TODO,
-  payload: { id: Date.now(), task },
+  payload: { id: nextTodoId++, task },
 });
+
 const removeTodo = (id) => ({
   type: REMOVE_TODO,
   payload: id,
 });
-const updateTodo = (id, newTask) => ({
-  type: UPDATE_TODO,
-  payload: { id, task: newTask },
-});
+
 const getTodos = () => ({
   type: GET_TODOS,
 });
-const buy_cake = () => {
-  return {
-    type: BUY_CAKE,
-    info: "First redux action",
-  };
-};
+
 const initialState = {
   todos: [],
-  numOfIceCreams: 10,
+  numOfTodo: 0,
 };
+
 const todoReducer = (state = initialState, action) => {
   switch (action.type) {
     case ADD_TODO:
       return {
         ...state,
         todos: [...state.todos, action.payload],
-        numOfIceCreams: state.numOfIceCreams - 1,
+        numOfTodo: state.numOfTodo + 1,
       };
     case REMOVE_TODO:
       return {
         ...state,
         todos: state.todos.filter((todo) => todo.id !== action.payload),
+        numOfTodo: state.numOfTodo - 1,
       };
     case UPDATE_TODO:
       return {
@@ -62,10 +59,17 @@ const todoReducer = (state = initialState, action) => {
       return state;
   }
 };
+
 const store = createStore(todoReducer);
-store.subscribe(() => console.log("Initial state", store.getState()));
+
+store.subscribe(() => console.log("State updated", store.getState()));
+
 store.dispatch(addTodo("lorem"));
+store.dispatch(addTodo("ipsum"));
+store.dispatch(addTodo("dolor"));
+
+store.dispatch(removeTodo(1));
+store.dispatch(removeTodo(2));
+store.dispatch(removeTodo(3));
+
 store.dispatch(getTodos());
-store.dispatch(buy_cake());
-store.dispatch(buy_cake());
-store.dispatch(buy_cake());
