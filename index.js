@@ -1,85 +1,71 @@
 const redux = require("redux");
 const createStore = redux.createStore;
-const reduxLogger = require("redux-logger").createLogger;
-const logger = reduxLogger();
-const applyMiddleware = redux.applyMiddleware;
-
-const combinedReducer = redux.combineReducers;
-
 const BUY_CAKE = "BUY_CAKE";
-const BUY_ICECREAM = "BUY_ICECREAM";
-
-const buyCake = () => {
+const ADD_TODO = "ADD_TODO";
+const REMOVE_TODO = "REMOVE_TODO";
+const UPDATE_TODO = "UPDATE_TODO";
+const GET_TODOS = "GET_TODOS";
+const addTodo = (task) => ({
+  type: ADD_TODO,
+  payload: { id: Date.now(), task },
+});
+const removeTodo = (id) => ({
+  type: REMOVE_TODO,
+  payload: id,
+});
+const updateTodo = (id, newTask) => ({
+  type: UPDATE_TODO,
+  payload: { id, task: newTask },
+});
+const getTodos = () => ({
+  type: GET_TODOS,
+});
+const buy_cake = () => {
   return {
     type: BUY_CAKE,
+    info: "First redux action",
   };
 };
-const buyIcecream = () => {
-  return {
-    type: BUY_ICECREAM,
-  };
+const initialState = {
+  todos: [],
+  numOfIceCreams: 10,
 };
-
-const initialCakeState = {
-  numOfCakes: 10,
-};
-
-const initialIceCreamState = {
-  numOfIceCreams: 20,
-};
-
-// const reducer = (state = initialState, action) => {
-//   switch (action.type) {
-//     case BUY_CAKE:
-//       return {
-//         ...state,
-//         numOfCakes: state.numOfCakes - 1,
-//       };
-//     case BUY_ICECREAM:
-//       return {
-//         ...state,
-//         numOfIceCreams: state.numOfIceCreams - 1,
-//       };
-//     default:
-//       return state;
-//   }
-// };
-
-const cakeReducer = (state = initialCakeState, action) => {
+const todoReducer = (state = initialState, action) => {
   switch (action.type) {
-    case BUY_CAKE:
+    case ADD_TODO:
       return {
         ...state,
-        numOfCakes: state.numOfCakes - 1,
-      };
-    default:
-      return state;
-  }
-};
-
-const iceCreamReducer = (state = initialIceCreamState, action) => {
-  switch (action.type) {
-    case BUY_ICECREAM:
-      return {
-        ...state,
+        todos: [...state.todos, action.payload],
         numOfIceCreams: state.numOfIceCreams - 1,
       };
+    case REMOVE_TODO:
+      return {
+        ...state,
+        todos: state.todos.filter((todo) => todo.id !== action.payload),
+      };
+    case UPDATE_TODO:
+      return {
+        ...state,
+        todos: state.todos.map((todo) =>
+          todo.id === action.payload.id
+            ? {
+                ...todo,
+                task: action.payload.task,
+              }
+            : todo
+        ),
+      };
+    case GET_TODOS:
+      console.log(state.todos);
+      return state;
     default:
       return state;
   }
 };
-
-const rootReducer = redux.combineReducers({
-  cake: cakeReducer,
-  iceCream: iceCreamReducer,
-});
-
-const store = createStore(rootReducer, applyMiddleware(logger));
-console.log("Initial state", store.getState());
-const unsubscribe = store.subscribe(() => {});
-store.dispatch(buyCake());
-store.dispatch(buyCake());
-store.dispatch(buyCake());
-store.dispatch(buyIcecream());
-store.dispatch(buyIcecream());
-unsubscribe();
+const store = createStore(todoReducer);
+store.subscribe(() => console.log("Initial state", store.getState()));
+store.dispatch(addTodo("lorem"));
+store.dispatch(getTodos());
+store.dispatch(buy_cake());
+store.dispatch(buy_cake());
+store.dispatch(buy_cake());
